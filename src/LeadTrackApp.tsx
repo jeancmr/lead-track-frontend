@@ -1,9 +1,10 @@
-import { Login } from './auth/pages/login/Login';
+import { RouterProvider } from 'react-router';
+import { appRouter } from './app.router';
 
 export const LeadTrackApp = () => {
   return (
     <div>
-      <Login />
+      <RouterProvider router={appRouter} />
     </div>
   );
 };

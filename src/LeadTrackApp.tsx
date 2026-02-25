@@ -1,10 +1,9 @@
-import { Button } from './components/ui/button';
+import { Login } from './auth/pages/login/Login';
 
 export const LeadTrackApp = () => {
   return (
     <div>
-      <h1>LeadTrackApp</h1>
-      <Button variant={'destructive'}>Click here</Button>
+      <Login />
     </div>
   );
 };

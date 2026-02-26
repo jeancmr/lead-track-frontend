@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { loginAction } from '../actions/login.action';
-import type { User } from '@/lead-track/interfaces/user.interface';
+import type { User } from '@/interfaces/user.interface';
 
 type AuthStatus = 'authenticated' | 'not-authenticated' | 'checking';
 

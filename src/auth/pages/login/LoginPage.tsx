@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/auth/store/auth.store';
+import { useNavigate } from 'react-router';
 
 export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSignIn = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,6 +21,7 @@ export function LoginPage() {
     const password = formData.get('password') as string;
 
     await login(email, password);
+    navigate('/clients');
 
     setIsLoading(false);
   };

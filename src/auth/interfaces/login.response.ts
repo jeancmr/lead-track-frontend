@@ -1,4 +1,4 @@
-import type { User } from '@/lead-track/interfaces/user.interface';
+import type { User } from '@/interfaces/user.interface';
 
 export interface LoginResponse {
   message: string;

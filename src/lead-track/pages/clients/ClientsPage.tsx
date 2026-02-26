@@ -12,7 +12,7 @@ export const ClientsPage = () => {
 
   const { data } = useQuery({
     queryKey: ['clients', { limit, page, search, status }],
-    queryFn: getClientsAction({ limit, page, search, status }),
+    queryFn: () => getClientsAction({ limit, page, search, status }),
     staleTime: 1000 * 6 * 5,
   });
 

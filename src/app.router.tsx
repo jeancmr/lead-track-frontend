@@ -6,11 +6,16 @@ import { ClientPage } from './lead-track/pages/client/ClientPage';
 import { TasksPage } from './lead-track/pages/tasks/TasksPage';
 import { LoginPage } from './auth/pages/login/LoginPage';
 import { Authlayout } from './auth/layout/AuthLayout';
+import { AuthenticatedRoute, NotAuthenticatedRoute } from './auth/routes/ProtectedRoutes';
 
 export const appRouter = createBrowserRouter([
   {
     path: '/',
-    element: <LeadTrackLayout />,
+    element: (
+      <AuthenticatedRoute>
+        <LeadTrackLayout />
+      </AuthenticatedRoute>
+    ),
     children: [
       { index: true, element: <DashboardPage /> },
       {
@@ -31,7 +36,11 @@ export const appRouter = createBrowserRouter([
   //   AUTH routes
   {
     path: '/auth',
-    element: <Authlayout />,
+    element: (
+      <NotAuthenticatedRoute>
+        <Authlayout />
+      </NotAuthenticatedRoute>
+    ),
     children: [
       {
         index: true,

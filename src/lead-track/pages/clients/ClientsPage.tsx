@@ -16,7 +16,7 @@ export const ClientsPage = () => {
 
   if (isLoading) return <CustomFullScreenLoading />;
 
-  const handleOpenDialog = (client: Client | null) => {
+  const handleOpenDialog = (client: Client) => {
     setIsDialogOpen(true);
     setClientSelected(client);
   };
@@ -29,7 +29,7 @@ export const ClientsPage = () => {
   return (
     <div className="space-y-6">
       <CustomJumbotron title="Clients" subtitle="Manage your client list and track their status">
-        <Button onClick={() => handleOpenDialog(null)}>
+        <Button onClick={() => setIsDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Client
         </Button>

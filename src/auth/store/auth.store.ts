@@ -2,16 +2,17 @@ import { create } from 'zustand';
 import { loginAction } from '../actions/login.action';
 import type { User } from '@/interfaces/user.interface';
 import { checkAuthAction } from '../actions/check-auth.action';
+import { logoutAction } from '../actions/logout.action';
 
 type AuthStatus = 'authenticated' | 'not-authenticated' | 'checking';
 
 type AuthState = {
-  user: User | null;
   authStatus: AuthStatus;
+  user: User | null;
 
-  logout: () => void;
-  login: (email: string, password: string) => Promise<void>;
   checkAuthStatus: () => Promise<User | null>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
 };
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -28,8 +29,14 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
   },
 
-  logout() {
-    set({ user: null, authStatus: 'not-authenticated' });
+  logout: async () => {
+    try {
+      await logoutAction();
+      set({ user: null, authStatus: 'not-authenticated' });
+    } catch (error) {
+      console.log(error);
+      set({ user: null, authStatus: 'not-authenticated' });
+    }
   },
 
   checkAuthStatus: async () => {

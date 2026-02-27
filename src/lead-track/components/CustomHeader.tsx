@@ -5,7 +5,7 @@ import { CustomNavigation } from './CustomNavigation';
 import { useAuthStore } from '@/auth/store/auth.store';
 
 export const CustomHeader = () => {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   if (!user) return null;
 
@@ -27,7 +27,7 @@ export const CustomHeader = () => {
                 {user.role}
               </span>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={logout}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>

@@ -1,4 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { CustomJumbotron } from '@/lead-track/components/CustomJumbotron';
 import { Users, TrendingUp, Phone, Clock, CheckCircle, ListTodo, CheckSquare } from 'lucide-react';
 
 const clientStats = [
@@ -18,10 +19,10 @@ const taskStats = [
 export const DashboardPage = () => {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Welcome back, Jean</h2>
-        <p className="mt-1 text-sm text-slate-500">Here's an overview of your CRM activity</p>
-      </div>
+      <CustomJumbotron
+        title="Welcome back, Jean"
+        subtitle="Here's an overview of your CRM activity"
+      />
 
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Client Overview</h3>

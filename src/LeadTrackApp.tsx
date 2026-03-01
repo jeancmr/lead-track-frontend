@@ -4,6 +4,7 @@ import { appRouter } from './app.router';
 import type { PropsWithChildren } from 'react';
 import { useAuthStore } from './auth/store/auth.store';
 import { CustomFullScreenLoading } from './components/custom/CustomFullScreenLoading';
+import { Toaster } from './components/ui/sonner';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ export const LeadTrackApp = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <CheckAuthProvider>
+        <Toaster />
         <RouterProvider router={appRouter} />
       </CheckAuthProvider>
     </QueryClientProvider>

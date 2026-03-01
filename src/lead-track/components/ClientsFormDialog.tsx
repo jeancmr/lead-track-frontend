@@ -27,6 +27,8 @@ import {
 import { baseClientSchema, type ClientFormValues } from '../schemas/client-base.schema';
 import type { Client } from '@/interfaces/client.interface';
 import { useEffect } from 'react';
+import { createUpdateClientAction } from '../actions/create-update-client.action';
+import { toast } from 'sonner';
 
 interface ClientsFormDialogProps {
   isDialogOpen: boolean;
@@ -72,14 +74,14 @@ export const ClientsFormDialog = ({
     }
   }, [client, form]);
 
-  function onSubmit(values: ClientFormValues) {
-    if (isEditing) {
-      console.log('user updated', values);
-      return;
+  const onSubmit = async (values: ClientFormValues) => {
+    try {
+      const data = await createUpdateClientAction(values);
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error.message);
     }
-
-    console.log('user inserted', values);
-  }
+  };
 
   return (
     <Dialog

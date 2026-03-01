@@ -78,8 +78,10 @@ export const ClientsFormDialog = ({
     try {
       const data = await createUpdateClientAction(values);
       toast.success(data.message);
+      handleCloseDialog();
     } catch (error) {
-      toast.error(error.message);
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      toast.error(message);
     }
   };
 

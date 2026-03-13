@@ -1,18 +1,20 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useFetchClients } from '@/lead-track/hooks/useFetchClients';
+import { useClients } from '@/lead-track/hooks/useClients';
 import { CustomFullScreenLoading } from '@/components/custom/CustomFullScreenLoading';
 import { Button } from '@/components/ui/button';
 import { ClientsFormDialog } from '@/lead-track/components/ClientsFormDialog';
 import { ClientsTable } from '@/lead-track/components/ClientsTable';
 import { CustomJumbotron } from '@/lead-track/components/CustomJumbotron';
 import type { Client } from '@/interfaces/client.interface';
+import type { ClientFormValues } from '@/lead-track/schemas/client-base.schema';
+import { toast } from 'sonner';
 
 export const ClientsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clientSelected, setClientSelected] = useState<Client | null>();
 
-  const { data, isLoading } = useFetchClients();
+  const { data, isLoading, mutation } = useClients();
 
   if (isLoading) return <CustomFullScreenLoading />;
 
@@ -24,6 +26,18 @@ export const ClientsPage = () => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setClientSelected(null);
+  };
+
+  const handleSubmit = async (clientData: ClientFormValues) => {
+    await mutation.mutateAsync(clientData, {
+      onSuccess: (data) => {
+        handleCloseDialog();
+        toast.success(data.message);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
 
   return (
@@ -48,6 +62,7 @@ export const ClientsPage = () => {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         handleCloseDialog={handleCloseDialog}
+        onSubmit={handleSubmit}
       />
     </div>
   );

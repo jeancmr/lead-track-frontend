@@ -27,14 +27,13 @@ import {
 import { baseClientSchema, type ClientFormValues } from '../schemas/client-base.schema';
 import type { Client } from '@/interfaces/client.interface';
 import { useEffect } from 'react';
-import { createUpdateClientAction } from '../actions/create-update-client.action';
-import { toast } from 'sonner';
 
 interface ClientsFormDialogProps {
   isDialogOpen: boolean;
   setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleCloseDialog: () => void;
   client: Client | null;
+  onSubmit: (clientData: ClientFormValues) => Promise<void>;
 }
 
 const initialClientValues: ClientFormValues = {
@@ -51,6 +50,7 @@ export const ClientsFormDialog = ({
   handleCloseDialog,
   setIsDialogOpen,
   client,
+  onSubmit,
 }: ClientsFormDialogProps) => {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(baseClientSchema),
@@ -73,17 +73,6 @@ export const ClientsFormDialog = ({
       form.reset(initialClientValues);
     }
   }, [client, form]);
-
-  const onSubmit = async (values: ClientFormValues) => {
-    try {
-      const data = await createUpdateClientAction(values);
-      toast.success(data.message);
-      handleCloseDialog();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      toast.error(message);
-    }
-  };
 
   return (
     <Dialog

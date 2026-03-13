@@ -4,14 +4,16 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Input } from '@/components/ui/input';
 import { getStatusColor } from '../lib/get-status-color';
 import type { Client } from '@/interfaces/client.interface';
+import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
 
 interface Props {
   clients: Client[];
   totalClients: number;
   onOpenDialog: (client: Client) => void;
+  onDeleteClient: (client: Client) => void;
 }
 
-export const ClientsTable = ({ clients, totalClients, onOpenDialog }: Props) => {
+export const ClientsTable = ({ clients, totalClients, onOpenDialog, onDeleteClient }: Props) => {
   return (
     <Card>
       <CardHeader>
@@ -74,9 +76,15 @@ export const ClientsTable = ({ clients, totalClients, onOpenDialog }: Props) => 
                       <Button variant="ghost" size="sm" onClick={() => onOpenDialog(client)}>
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
+
+                      <CustomAlertDialogDelete
+                        itemName={client.name}
+                        onDeleteItem={() => onDeleteClient(client)}
+                      >
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </CustomAlertDialogDelete>
                     </td>
                   </tr>
                 ))

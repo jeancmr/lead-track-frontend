@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { useClients } from '@/lead-track/hooks/useClients';
 import { CustomFullScreenLoading } from '@/components/custom/CustomFullScreenLoading';
 import { Button } from '@/components/ui/button';
@@ -8,13 +9,12 @@ import { ClientsTable } from '@/lead-track/components/ClientsTable';
 import { CustomJumbotron } from '@/lead-track/components/CustomJumbotron';
 import type { Client } from '@/interfaces/client.interface';
 import type { ClientFormValues } from '@/lead-track/schemas/client-base.schema';
-import { toast } from 'sonner';
 
 export const ClientsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clientSelected, setClientSelected] = useState<Client | null>();
 
-  const { data, isLoading, mutation } = useClients();
+  const { data, isLoading, mutation, deleteMutation } = useClients();
 
   if (isLoading) return <CustomFullScreenLoading />;
 
@@ -40,6 +40,13 @@ export const ClientsPage = () => {
     });
   };
 
+  const handleDeleteClient = async (client: Client) => {
+    await deleteMutation.mutateAsync(client.id, {
+      onSuccess: () => toast.success(`Client ${client.name} deleted succesfully`),
+      onError: (error) => toast.error(error.message),
+    });
+  };
+
   return (
     <div className="space-y-6">
       <CustomJumbotron title="Clients" subtitle="Manage your client list and track their status">
@@ -55,6 +62,7 @@ export const ClientsPage = () => {
         clients={data?.clients || []}
         totalClients={data?.meta.total || 0}
         onOpenDialog={handleOpenDialog}
+        onDeleteClient={handleDeleteClient}
       />
 
       <ClientsFormDialog

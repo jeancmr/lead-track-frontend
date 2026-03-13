@@ -3,6 +3,7 @@ import { getClientsAction } from '../actions/get-clients.action';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createUpdateClientAction } from '../actions/create-update-client.action';
 import { useAuthStore } from '@/auth/store/auth.store';
+import { deleteClientAction } from '../actions/delete-client.action';
 
 export const useClients = () => {
   const [searchParams] = useSearchParams();
@@ -27,5 +28,12 @@ export const useClients = () => {
     },
   });
 
-  return { ...query, mutation };
+  const deleteMutation = useMutation({
+    mutationFn: deleteClientAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+
+  return { ...query, mutation, deleteMutation };
 };

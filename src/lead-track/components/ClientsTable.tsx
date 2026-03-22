@@ -6,6 +6,8 @@ import type { Client } from '@/interfaces/client.interface';
 import { Edit2, Search, Trash2 } from 'lucide-react';
 import { getStatusColor } from '../lib/get-status-color';
 import { CustomPagination } from '@/components/custom/CustomPagination';
+import { useRef, type KeyboardEvent } from 'react';
+import { useSearchParams } from 'react-router';
 
 interface Props {
   clients: Client[];
@@ -22,6 +24,25 @@ export const ClientsTable = ({
   onOpenDialog,
   onDeleteClient,
 }: Props) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const search = searchParams.get('search') || '';
+
+  const handleSearch = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return;
+    const search = inputRef.current?.value;
+
+    const newSearchParams = new URLSearchParams();
+
+    if (!search) {
+      newSearchParams.delete('search');
+    } else {
+      newSearchParams.set('search', search);
+    }
+    setSearchParams(newSearchParams);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -36,8 +57,9 @@ export const ClientsTable = ({
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search by name, email, or company..."
-              // value={searchTerm}
-              // onChange={(e) => setSearchTerm(e.target.value)}
+              ref={inputRef}
+              onKeyDown={handleSearch}
+              defaultValue={search}
               className="pl-10"
             />
           </div>

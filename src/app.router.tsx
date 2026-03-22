@@ -23,7 +23,7 @@ export const appRouter = createBrowserRouter([
         element: <ClientsPage />,
       },
       {
-        path: 'client/:idClient',
+        path: 'clients/:idClient',
         element: <ClientPage />,
       },
       {

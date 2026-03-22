@@ -7,7 +7,7 @@ import { Edit2, Search, Trash2 } from 'lucide-react';
 import { getStatusColor } from '../lib/get-status-color';
 import { CustomPagination } from '@/components/custom/CustomPagination';
 import { useRef, type KeyboardEvent } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 interface Props {
   clients: Client[];
@@ -91,7 +91,11 @@ export const ClientsTable = ({
               ) : (
                 clients?.map((client) => (
                   <tr key={client.id} className="border-b border-slate-200 hover:bg-slate-50">
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{client.name}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                      <Link to={`/clients/${client.id}`} className="hover:underline">
+                        {client.name}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-600">{client.email}</td>
                     <td className="px-4 py-3 text-sm text-slate-600">{client.company}</td>
                     <td className="px-4 py-3 text-sm text-slate-600">{client.phone}</td>

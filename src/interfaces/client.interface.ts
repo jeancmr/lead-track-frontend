@@ -7,4 +7,5 @@ export interface Client {
   phone: string;
   company: string;
   status: ClientStatus;
+  createdAt: string;
 }

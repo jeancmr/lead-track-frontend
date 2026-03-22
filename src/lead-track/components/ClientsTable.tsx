@@ -1,19 +1,27 @@
-import { Search, Edit2, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { getStatusColor } from '../lib/get-status-color';
-import type { Client } from '@/interfaces/client.interface';
 import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import type { Client } from '@/interfaces/client.interface';
+import { Edit2, Search, Trash2 } from 'lucide-react';
+import { getStatusColor } from '../lib/get-status-color';
+import { CustomPagination } from '@/components/custom/CustomPagination';
 
 interface Props {
   clients: Client[];
   totalClients: number;
+  totalPages: number;
   onOpenDialog: (client: Client) => void;
   onDeleteClient: (client: Client) => void;
 }
 
-export const ClientsTable = ({ clients, totalClients, onOpenDialog, onDeleteClient }: Props) => {
+export const ClientsTable = ({
+  clients,
+  totalClients,
+  totalPages,
+  onOpenDialog,
+  onDeleteClient,
+}: Props) => {
   return (
     <Card>
       <CardHeader>
@@ -93,6 +101,8 @@ export const ClientsTable = ({ clients, totalClients, onOpenDialog, onDeleteClie
           </table>
         </div>
       </CardContent>
+
+      <CustomPagination totalPages={totalPages} />
     </Card>
   );
 };

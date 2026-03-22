@@ -61,6 +61,7 @@ export const ClientsPage = () => {
       <ClientsTable
         clients={data?.clients || []}
         totalClients={data?.meta.total || 0}
+        totalPages={data?.meta.totalPages || 0}
         onOpenDialog={handleOpenDialog}
         onDeleteClient={handleDeleteClient}
       />

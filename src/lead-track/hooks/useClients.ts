@@ -10,8 +10,10 @@ export const useClients = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
-  const limit = Number(searchParams.get('limit')) || 9;
-  const page = Number(searchParams.get('page')) || 1;
+  const queryLimit = Number(searchParams.get('limit')) || 10;
+  const queryPage = Number(searchParams.get('page')) || 1;
+  const limit = queryLimit < 0 ? 10 : queryLimit;
+  const page = queryPage < 0 ? 1 : queryPage;
   const search = searchParams.get('search') || '';
   const status = searchParams.get('status') || 'all';
 

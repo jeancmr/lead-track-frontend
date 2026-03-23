@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/auth/store/auth.store';
+import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
 import { CustomFullScreenLoading } from '@/components/custom/CustomFullScreenLoading';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClient } from '@/lead-track/hooks/useClient';
+import { getStatusColor } from '@/lead-track/lib/get-status-color';
 import {
   ArrowLeft,
   Calendar,
@@ -20,73 +23,56 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  status: string;
-  created_at: string;
-}
-
-interface Note {
-  id: string;
-  content: string;
-  client_id: string;
-  created_by: string;
-  created_at: string;
-  creator?: { name: string };
-}
-
-interface Task {
-  id: string;
-  title: string;
-  due_date: string | null;
-  status: 'to-do' | 'in-progress' | 'done';
-  client_id: string;
-  assigned_to: string;
-  created_at: string;
-  assignee?: { name: string };
-}
+import { toast } from 'sonner';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
-  const { data: client, isLoading } = useClient(idClient || '');
+  const { data: client, isLoading, noteMutation, deleteNoteMutation } = useClient(idClient || '');
+  const { user } = useAuthStore();
 
   const navigate = useNavigate();
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const notes = client?.notes;
+  const tasks = client?.tasks;
   const [noteDialog, setNoteDialog] = useState(false);
   const [taskDialog, setTaskDialog] = useState(false);
-  const [noteContent, setNoteContent] = useState('');
   const [taskForm, setTaskForm] = useState({
     title: '',
     dueDate: '',
   });
 
-  const handleAddNote = async () => {
-    // if (!noteContent.trim() || !user) return;
+  const handleAddNote = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    try {
-      setNoteContent('');
-      setNoteDialog(false);
-    } catch (error) {
-      console.error('Error adding note:', error);
-    }
+    const formData = new FormData(event.target as HTMLFormElement);
+    const note = formData.get('note') as string;
+
+    if (note === '') return;
+
+    const noteBody = {
+      note: { content: note, id: '' },
+      userId: user?.id,
+      clientId: client?.id,
+    };
+
+    await noteMutation.mutateAsync(noteBody, {
+      onSuccess: (data) => {
+        setNoteDialog((prev) => !prev);
+        toast.success(data.message);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!confirm('Delete this note?')) return;
-
-    try {
-    } catch (error) {
-      console.error('Error deleting note:', error);
-    }
+    await deleteNoteMutation.mutateAsync(noteId, {
+      onSuccess: () => toast.success(`Note deleted succesfully`),
+      onError: (error) => toast.error(error.message),
+    });
   };
 
   const handleAddTask = async () => {
@@ -114,21 +100,6 @@ export const ClientPage = () => {
       if (error) throw error;
     } catch (error) {
       console.error('Error deleting task:', error);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'lead':
-        return 'bg-amber-100 text-amber-800';
-      case 'contacted':
-        return 'bg-cyan-100 text-cyan-800';
-      case 'negotiating':
-        return 'bg-orange-100 text-orange-800';
-      case 'closed':
-        return 'bg-emerald-100 text-emerald-800';
-      default:
-        return 'bg-slate-100 text-slate-800';
     }
   };
 
@@ -213,7 +184,7 @@ export const ClientPage = () => {
               <div>
                 <CardTitle>Notes</CardTitle>
                 <CardDescription>
-                  {notes.length} note{notes.length !== 1 ? 's' : ''}
+                  {notes?.length} note{notes?.length !== 1 ? 's' : ''}
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setNoteDialog(true)}>
@@ -223,10 +194,10 @@ export const ClientPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {notes.length === 0 ? (
+                {notes?.length === 0 ? (
                   <p className="text-sm text-slate-500">No notes yet</p>
                 ) : (
-                  notes.map((note) => (
+                  notes?.map((note) => (
                     <div
                       key={note.id}
                       className="p-3 bg-slate-50 rounded-lg border border-slate-200"
@@ -235,19 +206,28 @@ export const ClientPage = () => {
                         <div className="flex-1">
                           <p className="text-sm text-slate-700">{note.content}</p>
                           <p className="text-xs text-slate-500 mt-2">
-                            {new Date(note.created_at).toLocaleDateString()} at{' '}
-                            {new Date(note.created_at).toLocaleTimeString([], {
+                            {new Date(note.createdAt).toLocaleDateString()} at{' '}
+                            {new Date(note.createdAt).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
                           </p>
                         </div>
-                        <button
+                        {/* <button
                           onClick={() => handleDeleteNote(note.id)}
                           className="text-slate-400 hover:text-red-500"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </button>
+                        </button> */}
+
+                        <CustomAlertDialogDelete
+                          itemName={`note ${note.id}`}
+                          onDeleteItem={() => handleDeleteNote(note.id)}
+                        >
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </CustomAlertDialogDelete>
                       </div>
                     </div>
                   ))
@@ -261,8 +241,8 @@ export const ClientPage = () => {
               <div>
                 <CardTitle>Tasks</CardTitle>
                 <CardDescription>
-                  {tasks.filter((t) => t.status !== 'done').length} active,{' '}
-                  {tasks.filter((t) => t.status === 'done').length} completed
+                  {tasks?.filter((t) => t.status !== 'done').length} active,{' '}
+                  {tasks?.filter((t) => t.status === 'done').length} completed
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setTaskDialog(true)}>
@@ -272,10 +252,10 @@ export const ClientPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {tasks.length === 0 ? (
+                {tasks?.length === 0 ? (
                   <p className="text-sm text-slate-500">No tasks yet</p>
                 ) : (
-                  tasks.map((task) => (
+                  tasks?.map((task) => (
                     <div
                       key={task.id}
                       className={`p-3 rounded-lg border ${task.status === 'done' ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}
@@ -308,11 +288,11 @@ export const ClientPage = () => {
                               >
                                 {task.title}
                               </p>
-                              {task.due_date && (
+                              {task.dueDate && (
                                 <div className="flex items-center gap-1 mt-1">
                                   <Calendar className="h-3 w-3 text-slate-400" />
                                   <p className="text-xs text-slate-500">
-                                    {new Date(task.due_date).toLocaleDateString()}
+                                    {new Date(task.dueDate).toLocaleDateString()}
                                   </p>
                                 </div>
                               )}
@@ -321,7 +301,7 @@ export const ClientPage = () => {
                         </div>
                         <button
                           onClick={() => handleDeleteTask(task.id)}
-                          className="text-slate-400 hover:text-red-500 flex-shrink-0"
+                          className="text-slate-400 hover:text-red-500 shrink-0"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -342,15 +322,14 @@ export const ClientPage = () => {
               <MessageSquare className="h-5 w-5" />
               Add Note
             </DialogTitle>
-            <DialogDescription>Add a note to this client's profile</DialogDescription>
+            <DialogDescription>Add a note to this client</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleAddNote}>
             <div className="space-y-2">
               <Label htmlFor="note">Note</Label>
               <textarea
                 id="note"
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
+                name="note"
                 placeholder="Type your note here..."
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none h-32"
               />
@@ -359,11 +338,9 @@ export const ClientPage = () => {
               <Button type="button" variant="outline" onClick={() => setNoteDialog(false)}>
                 Cancel
               </Button>
-              <Button type="button" onClick={handleAddNote} disabled={!noteContent.trim()}>
-                Add Note
-              </Button>
+              <Button type="submit">Add Note</Button>
             </div>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
 

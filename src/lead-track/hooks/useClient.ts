@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createUpdateClientAction } from '../actions/create-update-client.action';
 import { getClientByIdAction } from '../actions/get-client-by-id.action';
+import { createUpdateNoteAction } from '../actions/create-update-note.action';
+import { deleteNoteAction } from '../actions/delete-note.action';
 
 export const useClient = (id: string) => {
   const queryClient = useQueryClient();
@@ -11,12 +12,20 @@ export const useClient = (id: string) => {
     staleTime: 1000 * 6 * 5,
   });
 
-  const mutation = useMutation({
-    mutationFn: createUpdateClientAction,
+  const noteMutation = useMutation({
+    mutationFn: createUpdateNoteAction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client'] });
     },
   });
 
-  return { ...query, mutation };
+  const deleteNoteMutation = useMutation({
+    mutationFn: deleteNoteAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
+    },
+  });
+
+  return { ...query, noteMutation, deleteNoteMutation };
 };

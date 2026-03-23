@@ -12,17 +12,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ClientNotesFormDialog } from '@/lead-track/components/ClientNotesFormDialog';
 import { useClient } from '@/lead-track/hooks/useClient';
 import { getStatusColor } from '@/lead-track/lib/get-status-color';
-import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle2,
-  Circle,
-  MessageSquare,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle2, Circle, Plus, Trash2 } from 'lucide-react';
 import { useState, type SubmitEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'sonner';
@@ -315,34 +308,11 @@ export const ClientPage = () => {
         </div>
       </div>
 
-      <Dialog open={noteDialog} onOpenChange={setNoteDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Add Note
-            </DialogTitle>
-            <DialogDescription>Add a note to this client</DialogDescription>
-          </DialogHeader>
-          <form className="space-y-4" onSubmit={handleAddNote}>
-            <div className="space-y-2">
-              <Label htmlFor="note">Note</Label>
-              <textarea
-                id="note"
-                name="note"
-                placeholder="Type your note here..."
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none h-32"
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="outline" onClick={() => setNoteDialog(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">Add Note</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <ClientNotesFormDialog
+        noteDialog={noteDialog}
+        handleAddNote={handleAddNote}
+        setNoteDialog={setNoteDialog}
+      />
 
       <Dialog open={taskDialog} onOpenChange={setTaskDialog}>
         <DialogContent className="max-w-md">

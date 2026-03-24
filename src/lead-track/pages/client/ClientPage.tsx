@@ -9,6 +9,8 @@ import { ClientNotesFormDialog } from '@/lead-track/components/ClientNotesFormDi
 import { ClientTasksFormDialog } from '@/lead-track/components/ClientTasksFormDialog';
 import { useClient } from '@/lead-track/hooks/useClient';
 import { useNote } from '@/lead-track/hooks/useNote';
+import { useTask } from '@/lead-track/hooks/useTask';
+import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
@@ -16,6 +18,7 @@ export const ClientPage = () => {
 
   const { data: client, isLoading } = useClient(idClient || '');
   const { onAddNote, onDeleteNote } = useNote(idClient || '');
+  const { onAddTask, onDeleteTask } = useTask(idClient || '');
 
   const notes = client?.notes;
   const tasks = client?.tasks;
@@ -24,6 +27,11 @@ export const ClientPage = () => {
   const handleAddNote = async (event: SubmitEvent<HTMLFormElement>) => {
     onAddNote(event);
     setNoteDialog((prev) => !prev);
+  };
+
+  const onTaskSubmit = async (taskData: ClientTaskFormValues) => {
+    onAddTask(taskData);
+    setTaskDialog(false);
   };
 
   if (isLoading) {
@@ -53,7 +61,11 @@ export const ClientPage = () => {
             setNoteDialog={setNoteDialog}
           />
 
-          <ClientListTasks tasks={tasks || []} setTaskDialog={setTaskDialog} />
+          <ClientListTasks
+            tasks={tasks || []}
+            onDeleteTask={onDeleteTask}
+            setTaskDialog={setTaskDialog}
+          />
         </div>
       </div>
 
@@ -63,7 +75,11 @@ export const ClientPage = () => {
         setNoteDialog={setNoteDialog}
       />
 
-      <ClientTasksFormDialog taskDialog={taskDialog} setTaskDialog={setTaskDialog} />
+      <ClientTasksFormDialog
+        taskDialog={taskDialog}
+        setTaskDialog={setTaskDialog}
+        onSubmit={onTaskSubmit}
+      />
     </div>
   );
 };

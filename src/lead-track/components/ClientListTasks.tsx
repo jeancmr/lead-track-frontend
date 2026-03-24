@@ -3,19 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTaskStatusColor } from '../lib/get-task-status-color';
 import type { Task } from '@/interfaces/task.interface';
+import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
 
 interface Props {
   tasks: Task[];
+  onDeleteTask: (taskId: string) => Promise<void>;
   setTaskDialog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const ClientListTasks = ({ tasks, setTaskDialog }: Props) => {
+export const ClientListTasks = ({ tasks, onDeleteTask, setTaskDialog }: Props) => {
   const handleUpdateTaskStatus = async () => {};
-
-  const handleDeleteTask = async (taskId: string) => {
-    console.log(taskId);
-    if (!confirm('Delete this task?')) return;
-  };
 
   return (
     <Card>
@@ -74,12 +71,15 @@ export const ClientListTasks = ({ tasks, setTaskDialog }: Props) => {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteTask(task.id)}
-                    className="text-slate-400 hover:text-red-500 shrink-0"
+
+                  <CustomAlertDialogDelete
+                    itemName={`task ${task.title}`}
+                    onDeleteItem={() => onDeleteTask(task.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </CustomAlertDialogDelete>
                 </div>
               </div>
             ))

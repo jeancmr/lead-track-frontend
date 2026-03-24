@@ -6,29 +6,39 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2 } from 'lucide-react';
-import { useState } from 'react';
+import { useForm, type Resolver } from 'react-hook-form';
+import { clientTaskSchema, type ClientTaskFormValues } from '../schemas/client-task.schema';
 
 interface Props {
   taskDialog: boolean;
   setTaskDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  onSubmit: (taskData: ClientTaskFormValues) => Promise<void>;
 }
 
-export const ClientTasksFormDialog = ({ taskDialog, setTaskDialog }: Props) => {
-  const [taskForm, setTaskForm] = useState({
-    title: '',
-    dueDate: '',
+const initialTaskValues: ClientTaskFormValues = {
+  title: '',
+  dueDate: '',
+  status: 'to-do',
+};
+
+export const ClientTasksFormDialog = ({ taskDialog, setTaskDialog, onSubmit }: Props) => {
+  const form = useForm<ClientTaskFormValues>({
+    // resolver: zodResolver(clientTaskSchema),
+    resolver: zodResolver(clientTaskSchema) as Resolver<ClientTaskFormValues>,
+    defaultValues: initialTaskValues,
   });
 
-  const handleAddTask = async () => {
-    try {
-      setTaskDialog(false);
-    } catch (error) {
-      console.error('Error adding task:', error);
-    }
-  };
   return (
     <Dialog open={taskDialog} onOpenChange={setTaskDialog}>
       <DialogContent className="max-w-md">
@@ -39,34 +49,45 @@ export const ClientTasksFormDialog = ({ taskDialog, setTaskDialog }: Props) => {
           </DialogTitle>
           <DialogDescription>Create a new task for this client</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="task-title">Task Title</Label>
-            <Input
-              id="task-title"
-              value={taskForm.title}
-              onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-              placeholder="Enter task title..."
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              rules={{ required: 'Title is required' }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task Title</FormLabel>
+                  <FormControl>
+                    <Input id="task-title" placeholder="Enter task title..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="due-date">Due Date (optional)</Label>
-            <Input
-              id="due-date"
-              type="date"
-              value={taskForm.dueDate}
-              onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date (optional)</FormLabel>
+                  <FormControl>
+                    <Input id="due-date" type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setTaskDialog(false)}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleAddTask} disabled={!taskForm.title.trim()}>
-              Add Task
-            </Button>
-          </div>
-        </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button type="button" variant="outline" onClick={() => setTaskDialog(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Add Task</Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

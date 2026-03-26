@@ -11,6 +11,7 @@ import { useClient } from '@/lead-track/hooks/useClient';
 import { useNote } from '@/lead-track/hooks/useNote';
 import { useTask } from '@/lead-track/hooks/useTask';
 import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
+import { useUsers } from '@/lead-track/hooks/useUsers';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
@@ -19,6 +20,8 @@ export const ClientPage = () => {
   const { data: client, isLoading } = useClient(idClient || '');
   const { onAddNote, onDeleteNote } = useNote(idClient || '');
   const { onAddTask, onDeleteTask } = useTask(idClient || '');
+
+  const { data: users } = useUsers();
 
   const notes = client?.notes;
   const tasks = client?.tasks;
@@ -79,6 +82,7 @@ export const ClientPage = () => {
         taskDialog={taskDialog}
         setTaskDialog={setTaskDialog}
         onSubmit={onTaskSubmit}
+        users={users || []}
       />
     </div>
   );

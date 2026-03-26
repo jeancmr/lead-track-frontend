@@ -1,13 +1,11 @@
-import { toast } from 'sonner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '@/auth/store/auth.store';
+import { toast } from 'sonner';
 import { createUpdateTaskAction } from '../actions/create-update-task.action';
-import type { ClientTaskFormValues } from '../schemas/client-task.schema';
 import { deleteTaskAction } from '../actions/delete-task.action';
+import type { ClientTaskFormValues } from '../schemas/client-task.schema';
 
 export const useTask = (clientId: string) => {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
 
   const taskMutation = useMutation({
     mutationFn: createUpdateTaskAction,
@@ -27,7 +25,6 @@ export const useTask = (clientId: string) => {
   const handleAddTask = async (taskData: ClientTaskFormValues) => {
     const taskBody = {
       task: taskData,
-      userId: user?.id,
       clientId: +clientId,
     };
 

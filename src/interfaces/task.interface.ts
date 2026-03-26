@@ -5,4 +5,5 @@ export interface Task {
   title: string;
   dueDate: string;
   status: TaskStatus;
+  assignedTo: number;
 }

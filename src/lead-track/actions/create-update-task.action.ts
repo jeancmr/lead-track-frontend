@@ -5,20 +5,20 @@ import type { CreateUpdateTaskResponse } from '../interfaces/create-update-task.
 
 interface TaskBody {
   clientId: number | undefined;
-  userId: number | undefined;
   task: Partial<Task>;
 }
 
 export const createUpdateTaskAction = async (
   taskBody: TaskBody,
 ): Promise<CreateUpdateTaskResponse> => {
-  const { id, ...taskInfo } = taskBody.task;
+  const { id, assignedTo, ...taskInfo } = taskBody.task;
+  const { clientId } = taskBody;
 
   try {
     const { data } = await leadTrackApi<CreateUpdateTaskResponse>({
       url: id ? `tasks/${id}` : 'tasks',
       method: id ? 'PATCH' : 'POST',
-      data: { clientId: taskBody.clientId, userId: taskBody.userId, ...taskInfo },
+      data: { clientId, userId: assignedTo, ...taskInfo },
     });
     return data;
   } catch (error) {

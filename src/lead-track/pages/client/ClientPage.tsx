@@ -12,9 +12,11 @@ import { useNote } from '@/lead-track/hooks/useNote';
 import { useTask } from '@/lead-track/hooks/useTask';
 import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
 import { useUsers } from '@/lead-track/hooks/useUsers';
+import { useAuthStore } from '@/auth/store/auth.store';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
+  const { user } = useAuthStore();
   const [noteDialog, setNoteDialog] = useState(false);
 
   const { data: client, isLoading } = useClient(idClient || '');
@@ -50,6 +52,8 @@ export const ClientPage = () => {
     );
   }
 
+  console.log(user?.role);
+
   return (
     <div className="space-y-6">
       <BacktoClientList />
@@ -64,11 +68,13 @@ export const ClientPage = () => {
             setNoteDialog={setNoteDialog}
           />
 
-          <ClientListTasks
-            tasks={tasks || []}
-            onDeleteTask={onDeleteTask}
-            setTaskDialog={setTaskDialog}
-          />
+          {user?.role === 'admin' && (
+            <ClientListTasks
+              tasks={tasks || []}
+              onDeleteTask={onDeleteTask}
+              setTaskDialog={setTaskDialog}
+            />
+          )}
         </div>
       </div>
 

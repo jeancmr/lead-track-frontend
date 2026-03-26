@@ -80,7 +80,7 @@ export const ClientTasksFormDialog = ({ taskDialog, users, setTaskDialog, onSubm
               name="dueDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Due Date (optional)</FormLabel>
+                  <FormLabel>Due Date</FormLabel>
                   <FormControl>
                     <Input id="due-date" type="date" {...field} />
                   </FormControl>
@@ -94,7 +94,7 @@ export const ClientTasksFormDialog = ({ taskDialog, users, setTaskDialog, onSubm
               name="assignedTo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assign to (optional)</FormLabel>
+                  <FormLabel>Assign to</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
                     value={field.value?.toString() ?? ''}

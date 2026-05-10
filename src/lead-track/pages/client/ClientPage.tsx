@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from 'react';
 import { useParams } from 'react-router';
+import { toast } from 'sonner';
 import { CustomFullScreenLoading } from '@/components/custom/CustomFullScreenLoading';
 import { BacktoClientList } from '@/lead-track/components/BacktoClientList';
 import { ClientDetails } from '@/lead-track/components/ClientDetails';
@@ -10,33 +11,62 @@ import { ClientTasksFormDialog } from '@/lead-track/components/ClientTasksFormDi
 import { useClient } from '@/lead-track/hooks/useClient';
 import { useNote } from '@/lead-track/hooks/useNote';
 import { useTask } from '@/lead-track/hooks/useTask';
-import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
 import { useUsers } from '@/lead-track/hooks/useUsers';
 import { useAuthStore } from '@/auth/store/auth.store';
+import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
+import type { Task } from '@/interfaces/task.interface';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
   const { user } = useAuthStore();
   const [noteDialog, setNoteDialog] = useState(false);
+  const [taskDialog, setTaskDialog] = useState(false);
+
+  const [selectedTask, setSelectedTask] = useState<Task | null>();
 
   const { data: client, isLoading } = useClient(idClient || '');
   const { onAddNote, onDeleteNote } = useNote(idClient || '');
-  const { onAddTask, onDeleteTask } = useTask(idClient || '');
+  const { onDeleteTask, mutation: taskMutation } = useTask();
 
   const { data: users } = useUsers();
 
   const notes = client?.notes;
   const tasks = client?.tasks;
-  const [taskDialog, setTaskDialog] = useState(false);
 
   const handleAddNote = async (event: SubmitEvent<HTMLFormElement>) => {
     onAddNote(event);
     setNoteDialog((prev) => !prev);
   };
 
-  const onTaskSubmit = async (taskData: ClientTaskFormValues) => {
-    onAddTask(taskData);
+  const handleSubmit = async (taskData: ClientTaskFormValues) => {
+    const taskBody = {
+      task: taskData,
+      clientId: +(idClient ?? 0),
+    };
+
+    await taskMutation.mutateAsync(taskBody, {
+      onSuccess: (data) => {
+        toast.success(data.message);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
+    handleCloseTaskDialog();
+  };
+
+  const handleOpenTaskDialog = async (task: Task) => {
+    setSelectedTask(task);
+    setTaskDialog(true);
+  };
+
+  const handleCloseTaskDialog = () => {
     setTaskDialog(false);
+
+    setTimeout(() => {
+      setSelectedTask(null);
+    }, 200);
   };
 
   if (isLoading) {
@@ -68,6 +98,7 @@ export const ClientPage = () => {
 
           {user?.role === 'admin' && (
             <ClientListTasks
+              onHandleOpenDialog={handleOpenTaskDialog}
               tasks={tasks || []}
               onDeleteTask={onDeleteTask}
               setTaskDialog={setTaskDialog}
@@ -83,9 +114,11 @@ export const ClientPage = () => {
       />
 
       <ClientTasksFormDialog
+        selectedTask={selectedTask || null}
         taskDialog={taskDialog}
         setTaskDialog={setTaskDialog}
-        onSubmit={onTaskSubmit}
+        onSubmit={handleSubmit}
+        onCloseDialog={handleCloseTaskDialog}
         users={users || []}
       />
     </div>

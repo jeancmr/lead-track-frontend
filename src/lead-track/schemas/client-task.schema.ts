@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { taskStatusEnum } from '@/schemas/task-status-enum';
 
 export const clientTaskSchema = z.object({
+  id: z.string().optional(),
   title: z.string().trim().min(1, 'Title is required'),
   dueDate: z.string(),
   status: taskStatusEnum.default('to-do'),

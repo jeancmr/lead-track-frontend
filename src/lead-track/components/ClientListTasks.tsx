@@ -1,19 +1,22 @@
-import { Plus, CheckCircle2, Circle, Calendar, Trash2 } from 'lucide-react';
+import { Calendar, Edit2, Plus, Trash2 } from 'lucide-react';
+import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getTaskStatusColor } from '../lib/get-task-status-color';
 import type { Task } from '@/interfaces/task.interface';
-import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDelete';
 
 interface Props {
   tasks: Task[];
   onDeleteTask: (taskId: string) => Promise<void>;
+  onHandleOpenDialog: (task: Task) => void;
   setTaskDialog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const ClientListTasks = ({ tasks, onDeleteTask, setTaskDialog }: Props) => {
-  const handleUpdateTaskStatus = async () => {};
-
+export const ClientListTasks = ({
+  tasks,
+  onDeleteTask,
+  onHandleOpenDialog,
+  setTaskDialog,
+}: Props) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -42,18 +45,6 @@ export const ClientListTasks = ({ tasks, onDeleteTask, setTaskDialog }: Props) =
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1">
                     <div className="flex items-start gap-2">
-                      <div
-                        className="shrink-0 cursor-pointer mt-0.5"
-                        onClick={() => {
-                          handleUpdateTaskStatus();
-                        }}
-                      >
-                        {task.status === 'done' ? (
-                          <CheckCircle2 className={`h-5 w-5 ${getTaskStatusColor('done')}`} />
-                        ) : (
-                          <Circle className={`h-5 w-5 ${getTaskStatusColor(task.status)}`} />
-                        )}
-                      </div>
                       <div className="flex-1">
                         <p
                           className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-slate-500' : 'text-slate-900'}`}
@@ -71,6 +62,10 @@ export const ClientListTasks = ({ tasks, onDeleteTask, setTaskDialog }: Props) =
                       </div>
                     </div>
                   </div>
+
+                  <Button variant="ghost" size="sm" onClick={() => onHandleOpenDialog(task)}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
 
                   <CustomAlertDialogDelete
                     itemName={`task ${task.title}`}

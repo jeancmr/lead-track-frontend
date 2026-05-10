@@ -1,14 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/auth/store/auth.store';
+import type { TaskStatus } from '@/schemas/task-status-enum';
 import { createUpdateTaskAction } from '../actions/create-update-task.action';
 import { deleteTaskAction } from '../actions/delete-task.action';
-import type { ClientTaskFormValues } from '../schemas/client-task.schema';
 import { getTasksByUserAction } from '../actions/get-tasks-by-user.action';
-import { useAuthStore } from '@/auth/store/auth.store';
 import { updateTaskStatusAction } from '../actions/update-task-status.action';
-import type { TaskStatus } from '@/schemas/task-status-enum';
 
-export const useTask = (clientId?: string) => {
+export const useTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
@@ -16,13 +15,6 @@ export const useTask = (clientId?: string) => {
     queryKey: ['tasks', { userId: user?.id }],
     queryFn: () => getTasksByUserAction(user?.id || 0),
     staleTime: 1000 * 6 * 5,
-  });
-
-  const taskMutation = useMutation({
-    mutationFn: createUpdateTaskAction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['client'] });
-    },
   });
 
   const deleteTaskMutation = useMutation({
@@ -41,21 +33,14 @@ export const useTask = (clientId?: string) => {
     },
   });
 
-  const handleAddTask = async (taskData: ClientTaskFormValues) => {
-    const taskBody = {
-      task: taskData,
-      clientId: +(clientId ?? 0),
-    };
-
-    await taskMutation.mutateAsync(taskBody, {
-      onSuccess: (data) => {
-        toast.success(data.message);
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    });
-  };
+  const mutation = useMutation({
+    mutationFn: createUpdateTaskAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
 
   const handleDeleteTask = async (taskId: string) => {
     await deleteTaskMutation.mutateAsync(taskId, {
@@ -76,7 +61,7 @@ export const useTask = (clientId?: string) => {
 
   return {
     ...query,
-    onAddTask: handleAddTask,
+    mutation,
     onDeleteTask: handleDeleteTask,
     onUpdateTaskStatus: handleUpdateTaskStatus,
   };

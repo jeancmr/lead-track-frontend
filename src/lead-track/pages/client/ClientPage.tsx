@@ -52,8 +52,6 @@ export const ClientPage = () => {
     );
   }
 
-  console.log(user?.role);
-
   return (
     <div className="space-y-6">
       <BacktoClientList />

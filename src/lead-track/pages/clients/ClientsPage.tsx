@@ -25,7 +25,10 @@ export const ClientsPage = () => {
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
-    setClientSelected(null);
+
+    setTimeout(() => {
+      setClientSelected(null);
+    }, 200);
   };
 
   const handleSubmit = async (clientData: ClientFormValues) => {

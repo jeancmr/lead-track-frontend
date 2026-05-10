@@ -58,6 +58,7 @@ export const TasksPage = () => {
                               className="bg-white p-4 mb-4 rounded-lg shadow"
                             >
                               <h3 className="font-bold">{task.title}</h3>
+                              <p className="text-sm text-gray-700">Client: {task.client}</p>
                               <p className="text-sm text-gray-500">
                                 Due: {new Date(task.dueDate).toLocaleDateString()}
                               </p>

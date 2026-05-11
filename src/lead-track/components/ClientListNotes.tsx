@@ -2,15 +2,21 @@ import { CustomAlertDialogDelete } from '@/components/custom/CustomAlertDialogDe
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Note } from '@/interfaces/note.interface';
-import { Plus, Trash2 } from 'lucide-react';
+import { Edit2, Plus, Trash2 } from 'lucide-react';
 
 interface Props {
   notes: Note[];
   setNoteDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  onHandleOpenDialog: (note: Note) => void;
   onDeleteNote: (noteId: string) => Promise<void>;
 }
 
-export const ClientListNotes = ({ notes, setNoteDialog, onDeleteNote }: Props) => {
+export const ClientListNotes = ({
+  notes,
+  setNoteDialog,
+  onHandleOpenDialog,
+  onDeleteNote,
+}: Props) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -43,6 +49,10 @@ export const ClientListNotes = ({ notes, setNoteDialog, onDeleteNote }: Props) =
                       })}
                     </p>
                   </div>
+
+                  <Button variant="ghost" size="sm" onClick={() => onHandleOpenDialog(note)}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
 
                   <CustomAlertDialogDelete
                     itemName={`note ${note.id}`}

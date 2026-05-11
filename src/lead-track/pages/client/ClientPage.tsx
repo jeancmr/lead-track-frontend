@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { toast } from 'sonner';
 import { CustomFullScreenLoading } from '@/components/custom/CustomFullScreenLoading';
@@ -15,6 +15,8 @@ import { useUsers } from '@/lead-track/hooks/useUsers';
 import { useAuthStore } from '@/auth/store/auth.store';
 import type { ClientTaskFormValues } from '@/lead-track/schemas/client-task.schema';
 import type { Task } from '@/interfaces/task.interface';
+import type { Note } from '@/interfaces/note.interface';
+import type { ClientNoteFormValues } from '@/lead-track/schemas/client-note.schema';
 
 export const ClientPage = () => {
   const { idClient } = useParams();
@@ -23,9 +25,10 @@ export const ClientPage = () => {
   const [taskDialog, setTaskDialog] = useState(false);
 
   const [selectedTask, setSelectedTask] = useState<Task | null>();
+  const [selectedNote, setSelectedNote] = useState<Note | null>();
 
   const { data: client, isLoading } = useClient(idClient || '');
-  const { onAddNote, onDeleteNote } = useNote(idClient || '');
+  const { mutation: noteMutation, onDeleteNote } = useNote(idClient || '');
   const { onDeleteTask, mutation: taskMutation } = useTask();
 
   const { data: users } = useUsers();
@@ -33,12 +36,7 @@ export const ClientPage = () => {
   const notes = client?.notes;
   const tasks = client?.tasks;
 
-  const handleAddNote = async (event: SubmitEvent<HTMLFormElement>) => {
-    onAddNote(event);
-    setNoteDialog((prev) => !prev);
-  };
-
-  const handleSubmit = async (taskData: ClientTaskFormValues) => {
+  const handleTaskSubmit = async (taskData: ClientTaskFormValues) => {
     const taskBody = {
       task: taskData,
       clientId: +(idClient ?? 0),
@@ -56,6 +54,27 @@ export const ClientPage = () => {
     handleCloseTaskDialog();
   };
 
+  const handleNoteSubmit = async (noteData: ClientNoteFormValues) => {
+    // if (note === '') return toast.error('Note content cannot be empty');
+
+    const noteBody = {
+      note: { content: noteData.content, id: noteData.id || '' },
+      userId: user?.id,
+      clientId: +idClient!,
+    };
+
+    await noteMutation.mutateAsync(noteBody, {
+      onSuccess: (data) => {
+        toast.success(data.message);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
+    handleCloseNoteDialog();
+  };
+
   const handleOpenTaskDialog = async (task: Task) => {
     setSelectedTask(task);
     setTaskDialog(true);
@@ -66,6 +85,19 @@ export const ClientPage = () => {
 
     setTimeout(() => {
       setSelectedTask(null);
+    }, 200);
+  };
+
+  const handleOpenNoteDialog = async (note: Note) => {
+    setSelectedNote(note);
+    setNoteDialog(true);
+  };
+
+  const handleCloseNoteDialog = () => {
+    setNoteDialog(false);
+
+    setTimeout(() => {
+      setSelectedNote(null);
     }, 200);
   };
 
@@ -91,6 +123,7 @@ export const ClientPage = () => {
 
         <div className="md:col-span-2 space-y-6">
           <ClientListNotes
+            onHandleOpenDialog={handleOpenNoteDialog}
             notes={notes || []}
             onDeleteNote={onDeleteNote}
             setNoteDialog={setNoteDialog}
@@ -108,16 +141,18 @@ export const ClientPage = () => {
       </div>
 
       <ClientNotesFormDialog
+        selectedNote={selectedNote || null}
         noteDialog={noteDialog}
-        handleAddNote={handleAddNote}
         setNoteDialog={setNoteDialog}
+        onSubmit={handleNoteSubmit}
+        onCloseDialog={handleCloseNoteDialog}
       />
 
       <ClientTasksFormDialog
         selectedTask={selectedTask || null}
         taskDialog={taskDialog}
         setTaskDialog={setTaskDialog}
-        onSubmit={handleSubmit}
+        onSubmit={handleTaskSubmit}
         onCloseDialog={handleCloseTaskDialog}
         users={users || []}
       />

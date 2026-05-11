@@ -24,6 +24,14 @@ export const useNote = (clientId: string) => {
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: createUpdateNoteAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
+    },
+  });
+
   const handleAddNote = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -55,5 +63,5 @@ export const useNote = (clientId: string) => {
     });
   };
 
-  return { onAddNote: handleAddNote, onDeleteNote: handleDeleteNote };
+  return { mutation, onDeleteNote: handleDeleteNote };
 };
